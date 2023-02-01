@@ -1,14 +1,14 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="zh">
 
 <head>
   <meta charset="UTF-8">
   <meta http-equiv="X-UA-Compatible" content="IE=edge">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <link rel="shortcut icon" href="https://cdn.jsdelivr.net/gh/fromann/CDN@main/img/logo.ico">
-  <title>是给赵瑶的&#10084;&#65039;</title>
-  <script src="https://cdn.jsdelivr.net/gh/zyoushuo/Blog/hexo/js/mouse_slide.js"></script>
-  <script src="https://cdn.jsdelivr.net/gh/zyoushuo/Blog/hexo/js/clicklove.js"></script>
+  <link rel="shortcut icon" href="./icon.ico">
+  <title>王艳艳&#10084;&#65039;朱鸿</title>
+  <script src="./mouse_slide.js"></script>
+  <script src="./clicklove.js"></script>
   <style type="text/css">
     html,
     body {
@@ -16,10 +16,23 @@
       padding: 0;
       margin: 0;
       background: #000;
+      overflow: hidden;
+    }
+
+    .wrapper {
+      transition: all ease-in-out .3s;
+    }
+
+    .container {
+      width: 100vw;
+      height: 100vh;
+      position: relative;
     }
 
     canvas {
       position: absolute;
+      top: 0;
+      left: 0;
       width: 100%;
       height: 100%;
     }
@@ -44,11 +57,42 @@
 </head>
 
 <body>
-  <canvas id="pinkboard"></canvas>
+  <div class="wrapper">
+    <div class="container">
+      <canvas></canvas>
+      <div class="namebox">
+        <h1>2020</h1>
+      </div>
+    </div>
+    <div class="container">
+      <canvas></canvas>
+      <div class="namebox">
+        <h1>2021</h1>
+      </div>
+    </div>
+    <div class="container">
+      <canvas></canvas>
+      <div class="namebox">
+        <h1>2022</h1>
+      </div>
+    </div>
+    <div class="container">
+      <canvas></canvas>
+      <div class="namebox">
+        <h1>2023</h1>
+      </div>
+    </div>
+    <div class="container">
+      <canvas></canvas>
+      <div class="namebox">
+        <h1>未完&#10084;&#65039;待续</h1>
+      </div>
+    </div>
+  </div>
   <script>
     var settings = {
       particles: {
-        length: 500, // maximum amount of particles
+        length: 400, // maximum amount of particles
         duration: 2, // particle duration in sec
         velocity: 100, // particle velocity in pixels/sec
         effect: -0.75, // play with this for a nice effect
@@ -194,91 +238,137 @@
     * Putting it all together
   
     */
-    (function (canvas) {
-      var context = canvas.getContext('2d'),
-        particles = new ParticlePool(settings.particles.length),
-        particleRate = settings.particles.length / settings.particles.duration, // particles/sec
-        time;
-      // get point on heart with -PI <= t <= PI
-      function pointOnHeart(t) {
-        return new Point(
-          160 * Math.pow(Math.sin(t), 3),
-          130 * Math.cos(t) - 50 * Math.cos(2 * t) - 20 * Math.cos(3 * t) - 10 * Math.cos(4 * t) + 25
-        );
+    document.querySelectorAll('canvas').forEach((canvas) => {
+      (function (canvas) {
+        var context = canvas.getContext('2d'),
+          particles = new ParticlePool(settings.particles.length),
+          particleRate = settings.particles.length / settings.particles.duration, // particles/sec
+          time;
+        // get point on heart with -PI <= t <= PI
+        function pointOnHeart(t) {
+          return new Point(
+            160 * Math.pow(Math.sin(t), 3),
+            130 * Math.cos(t) - 50 * Math.cos(2 * t) - 20 * Math.cos(3 * t) - 10 * Math.cos(4 * t) + 25
+          );
 
-      }
+        }
 
-      // creating the particle image using a dummy canvas
+        // creating the particle image using a dummy canvas
 
-      var image = (function () {
-        var canvas = document.createElement('canvas'),
-          context = canvas.getContext('2d');
-        canvas.width = settings.particles.size;
-        canvas.height = settings.particles.size;
-        // helper function to create the path
-        function to(t) {
-          var point = pointOnHeart(t);
-          point.x = settings.particles.size / 2 + point.x * settings.particles.size / 350;
-          point.y = settings.particles.size / 2 - point.y * settings.particles.size / 350;
-          return point;
+        var image = (function () {
+          var canvas = document.createElement('canvas'),
+            context = canvas.getContext('2d');
+          canvas.width = settings.particles.size;
+          canvas.height = settings.particles.size;
+          // helper function to create the path
+          function to(t) {
+            var point = pointOnHeart(t);
+            point.x = settings.particles.size / 2 + point.x * settings.particles.size / 350;
+            point.y = settings.particles.size / 2 - point.y * settings.particles.size / 350;
+            return point;
+          }
+          // create the path
+          context.beginPath();
+          var t = -Math.PI;
+          var point = to(t);
+          context.moveTo(point.x, point.y);
+          while (t < Math.PI) {
+            t += 0.01; // baby steps!
+            point = to(t);
+            context.lineTo(point.x, point.y);
+          }
+          context.closePath();
+          // create the fill
+          context.fillStyle = '#ed5a65';
+          context.fill();
+          // create the image
+          var image = new Image();
+          image.src = canvas.toDataURL();
+          return image;
+        })();
+        // render that thing!
+        function render() {
+          // next animation frame
+          requestAnimationFrame(render);
+          // update time
+          var newTime = new Date().getTime() / 10000,
+            deltaTime = newTime - (time || newTime);
+          time = newTime;
+          // clear canvas
+          context.clearRect(0, 0, canvas.width, canvas.height);
+          // create new particles
+          var amount = particleRate * deltaTime;
+          for (var i = 0; i < amount; i++) {
+            var pos = pointOnHeart(Math.PI - 2 * Math.PI * Math.random());
+            var dir = pos.clone().length(settings.particles.velocity);
+            particles.add(canvas.width / 2 + pos.x, canvas.height / 2 - pos.y, dir.x, -dir.y);
+          }
+          // update and draw particles
+          particles.update(deltaTime);
+          particles.draw(context, image);
         }
-        // create the path
-        context.beginPath();
-        var t = -Math.PI;
-        var point = to(t);
-        context.moveTo(point.x, point.y);
-        while (t < Math.PI) {
-          t += 0.01; // baby steps!
-          point = to(t);
-          context.lineTo(point.x, point.y);
+        // handle (re-)sizing of the canvas
+        function onResize() {
+          canvas.width = canvas.clientWidth;
+          canvas.height = canvas.clientHeight;
         }
-        context.closePath();
-        // create the fill
-        context.fillStyle = '#ff30c5';
-        // context.fillStyle = '#ea80b0';
-        context.fill();
-        // create the image
-        var image = new Image();
-        image.src = canvas.toDataURL();
-        return image;
-      })();
-      // render that thing!
-      function render() {
-        // next animation frame
-        requestAnimationFrame(render);
-        // update time
-        var newTime = new Date().getTime() / 1000,
-          deltaTime = newTime - (time || newTime);
-        time = newTime;
-        // clear canvas
-        context.clearRect(0, 0, canvas.width, canvas.height);
-        // create new particles
-        var amount = particleRate * deltaTime;
-        for (var i = 0; i < amount; i++) {
-          var pos = pointOnHeart(Math.PI - 2 * Math.PI * Math.random());
-          var dir = pos.clone().length(settings.particles.velocity);
-          particles.add(canvas.width / 2 + pos.x, canvas.height / 2 - pos.y, dir.x, -dir.y);
+        window.onresize = onResize;
+        // delay rendering bootstrap
+        setTimeout(function () {
+          onResize();
+          render();
+        }, 10);
+      })(canvas);
+    })
+
+    let index = 0
+    const wrapper = document.querySelector('.wrapper')
+
+    document.querySelectorAll('.container').forEach((el) => {
+      let y = 0
+      let moved = 0
+      let span = 0
+      let touchStart = false
+
+      el.addEventListener('touchstart', (e) => {
+        y = e.touches[0].clientY
+        touchStart = true
+      })
+      el.addEventListener('touchend', (e) => {
+        touchStart = false
+
+        const edge = window.innerHeight / 10
+        if(span > edge) {
+          // scroll down
+          index++
+
+          if(index > 0) index = 0
+        } else if(span < -edge) {
+          // scroll up
+          index--
+          
+          if(index < -4) index = -4
         }
-        // update and draw particles
-        particles.update(deltaTime);
-        particles.draw(context, image);
-      }
-      // handle (re-)sizing of the canvas
-      function onResize() {
-        canvas.width = canvas.clientWidth;
-        canvas.height = canvas.clientHeight;
-      }
-      window.onresize = onResize;
-      // delay rendering bootstrap
-      setTimeout(function () {
-        onResize();
-        render();
-      }, 10);
-    })(document.getElementById('pinkboard'));
+
+        moved = window.innerHeight * index
+        console.log(moved)
+        
+        wrapper.style.transform = `translateY(${moved}px)`
+      })
+      el.addEventListener('touchmove', (e) => {
+        if(!touchStart) return
+
+        moved = e.touches[0].clientY - y + window.innerHeight * index
+        span = e.touches[0].clientY - y
+
+        if(moved > 0) {
+          moved = 0
+        }
+
+        wrapper.style.transform = `translateY(${moved}px)`
+      })
+    })
   </script>
-  <div class="namebox">
-    <h1>SS&#10084;&#65039;ZY</h1>
-  </div>
 </body>
 
 </html>
